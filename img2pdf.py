@@ -20,25 +20,23 @@ dispatcher = updater.dispatcher
 pdfs = {}
 
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="A bot for converting images to a pdf file.\nTo start, use the command /upload <Название>.\nMade by Michael Melikov.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text=getLocalized("start", update.effective_user.language_code))
 
 def upload(update, context):
     user = update.message.from_user
     chat = update.effective_chat.id
     if(not context.args):
-        context.args = ["{} {}.pdf".format(user.first_name, user.username)]
+        context.args = ["{}.pdf".format(user.username)]
     filename = context.args[0]
-    pdfs[chat] = PDF(chat, user.username, filename)
-    context.bot.send_message(chat_id=chat, text="Upload images up to 20mb per image.\nWhen you're done use /create to create the pdf")
+    pdfs[chat] = PDF(chat, user.username, user.language_code, filename)
+    context.bot.send_message(chat_id=chat, text=getLocalized("upload", user.language_code))
 
 def getPhoto(update, context):
     pdf = pdfs[update.effective_chat.id]
     pdf.append(update.message.photo[-1].file_id)
 
-
 def getFile(update, context):
     photos.append(update.message.document.file_id)
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Document succesfully uploaded!")
 
 def create(update, context):
     chat = update.effective_chat.id
@@ -56,17 +54,18 @@ dispatcher.add_handler(MessageHandler(Filters.document.category("image") & (~Fil
 updater.start_polling()
 
 class PDF:
-    def __init__(self, chat_id, user_id, filename):
+    def __init__(self, chat_id, user_id, lc, filename):
         self.chat_id = chat_id
         self.user_id = user_id
+        self.lc = lc
         if(not filename.endswith(".pdf")):
             filename+=".pdf"
         self.filename = filename
         self.images = deque()
-        print("{}:User @{}(chat_id:{}) created {}.".format(datetime.now(), chat_id, user_id, filename))
+        print("{}:User @{}(chat_id:{}) created {}.".format(datetime.now(), user_id, chat_id, filename))
 
     def append(self, image):
-        bot.send_message(chat_id=self.chat_id, text="Photo succesfully uploaded!")
+        bot.send_message(chat_id=self.chat_id, text=getLocalized("success", self.lc))
         self.images.append(image)
 
     def createPFD(self):
@@ -89,7 +88,29 @@ class PDF:
     def uploadPDF(self):
         file = open(self.filename, 'rb')
         print("{}:User @{}(chat_id:{}) got theirs pdf {}.".format(datetime.now(), self.chat_id, self.user_id, self.filename))
-        bot.send_message(chat_id=self.chat_id, text="Uploading the pdf!")
+        bot.send_message(chat_id=self.chat_id, text=getLocalized("sending", self.lc))
         bot.send_document(chat_id=self.chat_id, document=file)
         file.close()
         os.remove(self.filename)
+
+
+localizedStrings = {
+    "en" : {
+        "start" : "A bot for converting images to a pdf file.\nTo start, use the command\n/upload <Name>.\nMade by @coutaq.",
+        "upload" : "Upload images up to 20mb per image.\nWhen you're done use /create to create the pdf",
+        "success": "Photo succesfully uploaded!",
+        "sending": "Uploading the pdf!"
+  },
+    "ru" : {
+        "start" : "Бот для создания pdf из картинок.\nЧтобы начать, используйте комманду\n/upload <Название>.\nMade by @coutaq.",
+        "upload" : "Загрузите картинки.\nКогда загрузите, используйте /create",
+        "success": "Фото загружено!",
+        "sending": "Отправляю .pdf!"
+  },
+}
+def getLocalized(string, lc):
+    if lc in localizedStrings:
+        dictionary = localizedStrings.get(lc)
+    else:
+        dictionary = localizedStrings.get("en")
+    return dictionary.get(string)
