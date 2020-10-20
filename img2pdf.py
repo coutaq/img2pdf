@@ -15,6 +15,7 @@ import os
 botToken = str(sys.argv[1])
 updater = Updater(token=botToken, use_context=True)
 bot = Bot(token=botToken)
+print("{}:Bot started.".format(datetime.now())
 photos = deque()
 dispatcher = updater.dispatcher
 pdfs = {}
