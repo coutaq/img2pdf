@@ -119,6 +119,8 @@ class PDF:
         logToConsole("User @{}(chat_id:{}) created {}.".format(user_id, chat_id, filename))
 
     def setFilename(self, filename):
+        if(not filename.endswith(".pdf")):
+          filename+=".pdf"
         self.filename = filename
 
     def append(self, image):
@@ -170,7 +172,7 @@ with open('localization.json', encoding="utf8") as localizatationFile:
 
 def getLocalized(string, lc):
     if lc in localizedStrings:
-        dictionary = localizedStrings.get(lc)
-    else:
         dictionary = localizedStrings.get("en")
+    else:
+        dictionary = localizedStrings.get(lc)
     return dictionary.get(string)
