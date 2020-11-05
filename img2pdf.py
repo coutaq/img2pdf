@@ -12,7 +12,8 @@ import signal
 import json
 
 def logToConsole(string):
-    print("[{}] {}".format(datetime.now().strftime("%H:%M:%S"), string))
+    """Prints the specified string with the current time."""
+    print(f'[{datetime.now().strftime("%H:%M:%S")}] {string}')
 botToken = str(sys.argv[1])
 updater = Updater(token=botToken, use_context=True)
 bot = Bot(token=botToken)
@@ -21,6 +22,7 @@ dispatcher = updater.dispatcher
 pdfs = {}
 
 def combineArgsIntoSentence(args):
+    """Combines all the args into a string with spaces as ."""
     filename = ""
     for word in args:
         filename+=" "+word
@@ -29,7 +31,7 @@ def combineArgsIntoSentence(args):
 
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=getLocalized("start", update.effective_user.language_code))
-    logToConsole("User @{}(chat_id:{}) initalized the bot.".format(update.message.from_user.username, update.effective_chat.id))
+    logToConsole("User @{username}(chat_id:{chat_id}) initalized the bot.".format(username = update.message.from_user.username, chat_id = update.effective_chat.id))
     
 def help(update, context):
     photo = open("howto.png", 'rb')
@@ -79,7 +81,7 @@ def delete(update, context):
     if chat in pdfs:
         pdfs.pop(chat)
     context.bot.send_message(chat_id=chat, text=getLocalized("deleted", update.message.from_user.language_code))
-    logToConsole("User @{}(chat_id:{}) deleted their pdf.".format(user, chat))
+    logToConsole("User @{username}(chat_id:{chat_id}) deleted their pdf.".format(username = user, chat_id = chat))
 
 def name(update, context):
     user = update.message.from_user
@@ -88,7 +90,7 @@ def name(update, context):
         if context.args:
             filename = combineArgsIntoSentence(context.args)
             pdfs[chat].setFilename(filename)
-            context.bot.send_message(chat_id=chat, text="{} {}.pdf.".format(getLocalized("nameSet", user.language_code), filename))
+            context.bot.send_message(chat_id=chat, text="{prompt} {filename}.pdf.".format(prompt = getLocalized("nameSet", user.language_code), filename = filename))
         else:
             context.bot.send_message(chat_id=chat, text=getLocalized("noFilenameError", update.message.from_user.language_code))
     else:
@@ -116,7 +118,7 @@ class PDF:
         self.filename = filename
         self.images = deque()
         self.author = author
-        logToConsole("User @{}(chat_id:{}) created {}.".format(user_id, chat_id, filename))
+        logToConsole(f"User @{user_id}(chat_id:{chat_id}) created {filename}.")
 
     def setFilename(self, filename):
         if(not filename.endswith(".pdf")):
@@ -128,7 +130,7 @@ class PDF:
         self.images.append(image)
 
     def createPFD(self):
-        logToConsole("User @{}(chat_id:{}) uploaded and combined the pictures into {}.".format(self.user_id, self.chat_id, self.filename))
+        logToConsole(f"User @{self.user_id}(chat_id:{self.chat_id}) uploaded and combined the pictures into {self.filename}.")
         canvas = Canvas(filename=self.filename)
         canvas.setTitle(self.filename)
         canvas.setAuthor(self.author)
@@ -148,7 +150,7 @@ class PDF:
 
     def uploadPDF(self):
         sent = False
-        logToConsole("User @{}(chat_id:{})'s pdf {} was succesfully created.".format(self.user_id, self.chat_id, self.filename))
+        logToConsole(f"User @{self.user_id}(chat_id:{self.chat_id})'s pdf {self.filename} was succesfully created.")
         bot.send_message(chat_id=self.chat_id, text=getLocalized("sending", self.lc))
         with open(self.filename, 'rb') as file:
             for i in range(10):
@@ -157,9 +159,9 @@ class PDF:
                     sent = True
                     break
                 except Exception as e:
-                    logToConsole("User's @{}(chat_id:{}) pdf {} was not uploaded({}/10) because of an Exception({}).".format(self.user_id, self.chat_id, self.filename, i, e.__class__))
+                    logToConsole(f"User @{self.user_id}(chat_id:{self.chat_id})'s pdf {self.filename} was not uploaded({i}/10) because of an Exception({e.__class__}).")
                 else:
-                    logToConsole("User @{}(chat_id:{}) got theirs pdf {}.".format(self.user_id, self.chat_id, self.filename))
+                    logToConsole(f"User @{self.user_id}(chat_id:{self.chat_id}) got theirs pdf {self.filename}.")
         if not sent:
             bot.send_message(chat_id=self.chat_id, text=getLocalized("uploadingError", self.lc))
         os.remove(self.filename)
