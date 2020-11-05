@@ -11,3 +11,11 @@ Use this link to inititalize the bot: http://t.me/img2pdfpy_bot.
 Just send some pictures to start. 
 
 When you're done use /create <filename> and it will respond with a .pdf file which contains your photos.
+____
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
