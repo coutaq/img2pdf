@@ -20,6 +20,13 @@ logToConsole("Bot started.")
 dispatcher = updater.dispatcher
 pdfs = {}
 
+def combineArgsIntoSentence(args):
+    filename = ""
+    for word in args:
+        filename+=" "+word
+    filename.strip()
+    return filename
+
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=getLocalized("start", update.effective_user.language_code))
     logToConsole("User @{}(chat_id:{}) initalized the bot.".format(update.message.from_user.username, update.effective_chat.id))
@@ -28,48 +35,71 @@ def help(update, context):
     photo = open("howto.png", 'rb')
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo)
     photo.close()
+
 def unknown(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=getLocalized("unknown", update.effective_user.language_code))
 
 def upload(update, context):
     user = update.message.from_user
     chat = update.effective_chat.id
-    author = "{} {}".format(user.first_name if user.language_code=="en" else user.last_name, user.last_name if user.language_code=="en" else user.first_name)
-    filename = ""
-    if(not context.args):
-        context.args = ["{}.pdf".format(user.username)]
-    for word in context.args:
-        filename+=" "+word
-    filename.strip()
-    pdfs[chat] = PDF(chat, user.username, user.language_code, filename, author)
     context.bot.send_message(chat_id=chat, text=getLocalized("upload", user.language_code))
 
 def getPhoto(update, context):
+    user = update.message.from_user
+    chat = update.effective_chat.id
+    if chat not in pdfs:
+        author = "{} {}".format(user.first_name if user.language_code=="en" else user.last_name, user.last_name if user.language_code=="en" else user.first_name)
+        pdfs[chat] = PDF(chat, user.username, user.language_code, user.username, author)
     pdf = pdfs[update.effective_chat.id]
     pdf.append(update.message.photo[-1].file_id)
 
 def getFile(update, context):
+    user = update.message.from_user
+    chat = update.effective_chat.id
+    if chat not in pdfs:
+        author = "{} {}".format(user.first_name if user.language_code=="en" else user.last_name, user.last_name if user.language_code=="en" else user.first_name)
+        pdfs[chat] = PDF(chat, user.username, user.language_code, user.username, author)
     pdf = pdfs[update.effective_chat.id]
     pdf.append(update.message.document.file_id)
 
 def create(update, context):
     chat = update.effective_chat.id
-    try:
+    if chat in pdfs:
         pdf = pdfs[chat]
-        if pdf.isEmpty():
-            context.bot.send_message(chat_id=chat, text=getLocalized("pdfEmptyError", update.message.from_user.language_code))
+        if context.args: pdf.setFilename(combineArgsIntoSentence(context.args))
+        pdf.createPFD()
+        pdf.uploadPDF()
+        pdfs.pop(chat)   
+    else:
+        context.bot.send_message(chat_id=chat, text=getLocalized("pdfEmptyError", update.message.from_user.language_code))
+   
+def delete(update, context):
+    user = update.message.from_user.username
+    chat = update.effective_chat.id
+    if chat in pdfs:
+        pdfs.pop(chat)
+    context.bot.send_message(chat_id=chat, text=getLocalized("deleted", update.message.from_user.language_code))
+    logToConsole("User @{}(chat_id:{}) deleted their pdf.".format(user, chat))
+
+def name(update, context):
+    user = update.message.from_user
+    chat = update.effective_chat.id
+    if chat in pdfs:
+        if context.args:
+            filename = combineArgsIntoSentence(context.args)
+            pdfs[chat].setFilename(filename)
+            context.bot.send_message(chat_id=chat, text="{} {}.pdf.".format(getLocalized("nameSet", user.language_code), filename))
         else:
-            pdf.createPFD()
-            pdf.uploadPDF()
-            pdfs.pop(chat)
-    except KeyError:
-        context.bot.send_message(chat_id=chat, text=getLocalized("fileNotInitiatedError", update.message.from_user.language_code))
-        pass
+            context.bot.send_message(chat_id=chat, text=getLocalized("noFilenameError", update.message.from_user.language_code))
+    else:
+        context.bot.send_message(chat_id=chat, text=getLocalized("pdfEmptyError", update.message.from_user.language_code))
 
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('help', help))
 dispatcher.add_handler(CommandHandler('upload', upload))
 dispatcher.add_handler(CommandHandler('create', create))
+dispatcher.add_handler(CommandHandler('name', name))
+dispatcher.add_handler(CommandHandler('delete', delete))
 dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 dispatcher.add_handler(MessageHandler(Filters.photo & (~Filters.command), getPhoto))
 dispatcher.add_handler(MessageHandler(Filters.document.category("image") & (~Filters.command), getFile))
@@ -87,6 +117,9 @@ class PDF:
         self.images = deque()
         self.author = author
         logToConsole("User @{}(chat_id:{}) created {}.".format(user_id, chat_id, filename))
+
+    def setFilename(self, filename):
+        self.filename = filename
 
     def append(self, image):
         bot.send_message(chat_id=self.chat_id, text=getLocalized("success", self.lc))
@@ -119,6 +152,7 @@ class PDF:
             for i in range(10):
                 try:
                     bot.send_document(chat_id=self.chat_id, document=file)
+                    sent = True
                     break
                 except Exception as e:
                     logToConsole("User's @{}(chat_id:{}) pdf {} was not uploaded({}/10) because of an Exception({}).".format(self.user_id, self.chat_id, self.filename, i, e.__class__))
@@ -129,8 +163,7 @@ class PDF:
         os.remove(self.filename)
         
     def isEmpty(self):
-        return self.images.count==0
-
+        return len(self.images)==0
 
 with open('localization.json', encoding="utf8") as localizatationFile:
     localizedStrings = json.load(localizatationFile)

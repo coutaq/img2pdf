@@ -1,32 +1,41 @@
 {
     "en" : {
-        "start" : "A bot for converting images to a pdf file.\nTo start, use the command\n/upload <Name>.\nMade by @coutaq.",
-        "upload" : "Upload images up to 20mb per image.\nWhen you're done use /create to create the pdf",
+        "start" : "A bot for converting images to a pdf file.\nTo start, send an image or an album.\nMade by @coutaq.",
+        "nameSet": "Your file in now called",
+        "deleted": "File deleted.",
+        "noFilenameError": "Please specify a name :)",
+        "upload" : "This command in now deprecated. Just send the images as is and use \n/create <filename>\n when you're done!",
         "success": "Photo succesfully uploaded!",
         "sending": "Uploading the pdf!",
         "unknown": "Sorry, I didn't understand that command.",
-        "fileNotInitiatedError" : "You must first use the /upload command before using /create.",
-        "pdfEmptyError": "You cannot create an empty pdf!",
+        "fileNotInitiatedError" : "You must first upload an image.",
+        "pdfEmptyError": "Empty pdf!",
         "uploadingError": "Upload failed!"
   },
     "ru" : {
-        "start" : "Бот для создания pdf из картинок.\nЧтобы начать, используйте комманду\n/upload <Название>.\nMade by @coutaq.",
-        "upload" : "Загрузите картинки.\nКогда загрузите, используйте /create",
+        "start" : "Бот для создания pdf из картинок.\nЧтобы начать, отправьте фото или альбом.\nMade by @coutaq.",
+        "nameSet": "Ваш файл теперь называется",
+        "deleted": "Файл был удален.",
+        "noFilenameError": "Напишите название файла :)",
+        "upload" : "Это команда устарела. Для создания документа, просто отправьте ваше фото, после чего используйте \n/create <название>!",
         "success": "Фото загружено!",
         "sending": "Отправляю .pdf!",
         "unknown": "Извините, я такое не умею.",
-        "fileNotInitiatedError" : "Перед использованием этой команды, нужно создать файл с помощью /upload.",
-        "pdfEmptyError": "Нельзя создать пустой документ!",
+        "fileNotInitiatedError" : "Перед использованием этой команды, нужно загрузить фото.",
+        "pdfEmptyError": "Пустой документ!",
         "uploadingError": "Не удалось отправить документ!"
   },
    "uk" : {
-        "start" : "Бот для створення pdf з картинок.\nДля того щоб розпочати, використовуйте комманду\n/upload <Назва>.\nMade by @coutaq, translated by @Imllush.",
-        "upload" : "Завантажте картинки.\nКоли завантажити, використовуйте /create",
+        "start" : "Бот для створення pdf з картинок.\nДля того щоб розпочати, отправьте фото чи альбом.\nMade by @coutaq, translated by @Imllush.",
+        "nameSet": "Ваш файл теперь называется",
+        "deleted": "Файл был удален.",
+        "noFilenameError": "Напишите название файла :)",
+        "upload" : "Это команда устарела. Для создания документа, просто отправьте ваше фото, после чего используйте \n/create <название>!",
         "success": "Картинка завантажена!",
         "sending": "Відправляю .pdf!",
         "unknown": "Вибачте, я таке не вмію.",
-        "fileNotInitiatedError" : "Перед використанням цієї команди, потрібно створити файл за допомогою /upload.",
-        "pdfEmptyError": "Неможливо створити пустий документ!",
+        "fileNotInitiatedError" : "Перед використанням цієї команди, потрібно завантажити фото.",
+        "pdfEmptyError": "Пустий документ!",
         "uploadingError": "Не вдалося відправити документ!"
   }
 }
