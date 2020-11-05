@@ -11,9 +11,7 @@ import os
 import signal
 import json
 
-def logToConsole(string):
-    """Prints the specified string with the current time."""
-    print(f'[{datetime.now().strftime("%H:%M:%S")}] {string}')
+logToConsole = lambda string: print(f'[{datetime.now().strftime("%H:%M:%S")}] {string}') 
 
 botToken = str(sys.argv[1])
 updater = Updater(token=botToken, use_context=True)
@@ -41,12 +39,10 @@ def help(update, context):
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo)
     photo.close()
 
-def unknown(update, context):
-    """Sends the unknown command message to the user."""
-    context.bot.send_message(chat_id=update.effective_chat.id, text=getLocalized("unknown", update.effective_user.language_code))
+unknown = lambda update, context: context.bot.send_message(chat_id=update.effective_chat.id, text=getLocalized("unknown", update.effective_user.language_code))
 
 def upload(update, context):
-    """Deprecated! Send the deprecated message to the user."""
+    """Deprecated! Sends the deprecated message to the user."""
     user = update.message.from_user
     chat = update.effective_chat.id
     context.bot.send_message(chat_id=chat, text=getLocalized("upload", user.language_code))
@@ -176,8 +172,7 @@ class PDF:
             bot.send_message(chat_id=self.chat_id, text=getLocalized("uploadingError", self.lc))
         os.remove(self.filename)
         
-    def isEmpty(self):
-        return len(self.images)==0
+    isEmpty = lambda self: len(self.images)==0
 
 with open('localization.json', encoding="utf8") as localizatationFile:
     localizedStrings = json.load(localizatationFile)
