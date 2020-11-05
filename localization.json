@@ -1,0 +1,32 @@
+{
+    "en" : {
+        "start" : "A bot for converting images to a pdf file.\nTo start, use the command\n/upload <Name>.\nMade by @coutaq.",
+        "upload" : "Upload images up to 20mb per image.\nWhen you're done use /create to create the pdf",
+        "success": "Photo succesfully uploaded!",
+        "sending": "Uploading the pdf!",
+        "unknown": "Sorry, I didn't understand that command.",
+        "fileNotInitiatedError" : "You must first use the /upload command before using /create.",
+        "pdfEmptyError": "You cannot create an empty pdf!",
+        "uploadingError": "Upload failed!"
+  },
+    "ru" : {
+        "start" : "Бот для создания pdf из картинок.\nЧтобы начать, используйте комманду\n/upload <Название>.\nMade by @coutaq.",
+        "upload" : "Загрузите картинки.\nКогда загрузите, используйте /create",
+        "success": "Фото загружено!",
+        "sending": "Отправляю .pdf!",
+        "unknown": "Извините, я такое не умею.",
+        "fileNotInitiatedError" : "Перед использованием этой команды, нужно создать файл с помощью /upload.",
+        "pdfEmptyError": "Нельзя создать пустой документ!",
+        "uploadingError": "Не удалось отправить документ!"
+  },
+   "uk" : {
+        "start" : "Бот для створення pdf з картинок.\nДля того щоб розпочати, використовуйте комманду\n/upload <Назва>.\nMade by @coutaq, translated by @Imllush.",
+        "upload" : "Завантажте картинки.\nКоли завантажити, використовуйте /create",
+        "success": "Картинка завантажена!",
+        "sending": "Відправляю .pdf!",
+        "unknown": "Вибачте, я таке не вмію.",
+        "fileNotInitiatedError" : "Перед використанням цієї команди, потрібно створити файл за допомогою /upload.",
+        "pdfEmptyError": "Неможливо створити пустий документ!",
+        "uploadingError": "Не вдалося відправити документ!"
+  }
+}

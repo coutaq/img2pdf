@@ -2,16 +2,14 @@ import array
 from reportlab.pdfgen.canvas import Canvas
 from PIL import Image
 from datetime import datetime
-from reportlab.lib.pagesizes import A4
-from telegram.ext import Updater
-from telegram.ext import CommandHandler
-from telegram.ext import MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import File, Bot, InputFile
 from collections import deque
 from io import BytesIO, BufferedReader, BufferedIOBase, BufferedWriter
 import sys
 import os
 import signal
+import json
 
 def logToConsole(string):
     print("[{}] {}".format(datetime.now().strftime("%H:%M:%S"), string))
@@ -114,57 +112,29 @@ class PDF:
         canvas.save()
 
     def uploadPDF(self):
-        file = open(self.filename, 'rb')
+        sent = False
         logToConsole("User @{}(chat_id:{})'s pdf {} was succesfully created.".format(self.user_id, self.chat_id, self.filename))
         bot.send_message(chat_id=self.chat_id, text=getLocalized("sending", self.lc))
-        for i in range(10):
-            try:
-                bot.send_document(chat_id=self.chat_id, document=file)
-                break
-            except Exception as e:
-                bot.send_message(chat_id=self.chat_id, text=getLocalized("uploadingError", self.lc))
-                logToConsole("User's @{}(chat_id:{}) pdf {} was not uploaded({}/10) because of an Exception({}).".format(self.user_id, self.chat_id, self.filename, i, e.__class__))
-        file.close()
-        logToConsole("User @{}(chat_id:{}) got theirs pdf {}.".format(self.user_id, self.chat_id, self.filename))
+        with open(self.filename, 'rb') as file:
+            for i in range(10):
+                try:
+                    bot.send_document(chat_id=self.chat_id, document=file)
+                    break
+                except Exception as e:
+                    logToConsole("User's @{}(chat_id:{}) pdf {} was not uploaded({}/10) because of an Exception({}).".format(self.user_id, self.chat_id, self.filename, i, e.__class__))
+                else:
+                    logToConsole("User @{}(chat_id:{}) got theirs pdf {}.".format(self.user_id, self.chat_id, self.filename))
+        if not sent:
+            bot.send_message(chat_id=self.chat_id, text=getLocalized("uploadingError", self.lc))
         os.remove(self.filename)
-
+        
     def isEmpty(self):
-        print(self.images.count)
         return self.images.count==0
 
 
-localizedStrings = {
-    "en" : {
-        "start" : "A bot for converting images to a pdf file.\nTo start, use the command\n/upload <Name>.\nMade by @coutaq.",
-        "upload" : "Upload images up to 20mb per image.\nWhen you're done use /create to create the pdf",
-        "success": "Photo succesfully uploaded!",
-        "sending": "Uploading the pdf!",
-        "unknown": "Sorry, I didn't understand that command.",
-        "fileNotInitiatedError" : "You must first use the /upload command before using /create.",
-        "pdfEmptyError": "You cannot create an empty pdf!",
-        "uploadingError": "Upload failed!"
-  },
-    "ru" : {
-        "start" : "Бот для создания pdf из картинок.\nЧтобы начать, используйте комманду\n/upload <Название>.\nMade by @coutaq.",
-        "upload" : "Загрузите картинки.\nКогда загрузите, используйте /create",
-        "success": "Фото загружено!",
-        "sending": "Отправляю .pdf!",
-        "unknown": "Извините, я такое не умею.",
-        "fileNotInitiatedError" : "Перед использованием этой команды, нужно создать файл с помощью /upload.",
-        "pdfEmptyError": "Нельзя создать пустой документ!",
-        "uploadingError": "Не удалось отправить документ!"
-  },
-   "uk" : {
-        "start" : "Бот для створення pdf з картинок.\nДля того щоб розпочати, використовуйте комманду\n/upload <Назва>.\nMade by @coutaq, translated by @Imllush.",
-        "upload" : "Завантажте картинки.\nКоли завантажити, використовуйте /create",
-        "success": "Картинка завантажена!",
-        "sending": "Відправляю .pdf!",
-        "unknown": "Вибачте, я таке не вмію.",
-        "fileNotInitiatedError" : "Перед використанням цієї команди, потрібно створити файл за допомогою /upload.",
-        "pdfEmptyError": "Неможливо створити пустий документ!",
-        "uploadingError": "Не вдалося відправити документ!"
-  },
-}
+with open('localization.json', encoding="utf8") as localizatationFile:
+    localizedStrings = json.load(localizatationFile)
+
 def getLocalized(string, lc):
     if lc in localizedStrings:
         dictionary = localizedStrings.get(lc)
