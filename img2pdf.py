@@ -14,6 +14,7 @@ import json
 def logToConsole(string):
     """Prints the specified string with the current time."""
     print(f'[{datetime.now().strftime("%H:%M:%S")}] {string}')
+
 botToken = str(sys.argv[1])
 updater = Updater(token=botToken, use_context=True)
 bot = Bot(token=botToken)
@@ -22,7 +23,7 @@ dispatcher = updater.dispatcher
 pdfs = {}
 
 def combineArgsIntoSentence(args):
-    """Combines all the args into a string with spaces as ."""
+    """Combines all the args into a string with spaces as divider. Returns that string."""
     filename = ""
     for word in args:
         filename+=" "+word
@@ -30,23 +31,28 @@ def combineArgsIntoSentence(args):
     return filename
 
 def start(update, context):
+    """Sends the welcome message to the user."""
     context.bot.send_message(chat_id=update.effective_chat.id, text=getLocalized("start", update.effective_user.language_code))
     logToConsole("User @{username}(chat_id:{chat_id}) initalized the bot.".format(username = update.message.from_user.username, chat_id = update.effective_chat.id))
     
 def help(update, context):
+    """Sends the guide to the user."""
     photo = open("howto.png", 'rb')
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo)
     photo.close()
 
 def unknown(update, context):
+    """Sends the unknown command message to the user."""
     context.bot.send_message(chat_id=update.effective_chat.id, text=getLocalized("unknown", update.effective_user.language_code))
 
 def upload(update, context):
+    """Deprecated! Send the deprecated message to the user."""
     user = update.message.from_user
     chat = update.effective_chat.id
     context.bot.send_message(chat_id=chat, text=getLocalized("upload", user.language_code))
 
 def getPhoto(update, context):
+    """Downloads a photo and adds it to the photos queue."""
     user = update.message.from_user
     chat = update.effective_chat.id
     if chat not in pdfs:
@@ -56,6 +62,7 @@ def getPhoto(update, context):
     pdf.append(update.message.photo[-1].file_id)
 
 def getFile(update, context):
+    """Downloads a document and adds it to the photos queue."""
     user = update.message.from_user
     chat = update.effective_chat.id
     if chat not in pdfs:
@@ -65,6 +72,7 @@ def getFile(update, context):
     pdf.append(update.message.document.file_id)
 
 def create(update, context):
+    """combines the photos into a pdf file and sends that to the user."""
     chat = update.effective_chat.id
     if chat in pdfs:
         pdf = pdfs[chat]
@@ -76,6 +84,7 @@ def create(update, context):
         context.bot.send_message(chat_id=chat, text=getLocalized("pdfEmptyError", update.message.from_user.language_code))
    
 def delete(update, context):
+    """Deletes the current pdf from the pdfs queue."""
     user = update.message.from_user.username
     chat = update.effective_chat.id
     if chat in pdfs:
@@ -84,6 +93,7 @@ def delete(update, context):
     logToConsole("User @{username}(chat_id:{chat_id}) deleted their pdf.".format(username = user, chat_id = chat))
 
 def name(update, context):
+    """Sets the filename of the current pdf"""
     user = update.message.from_user
     chat = update.effective_chat.id
     if chat in pdfs:
