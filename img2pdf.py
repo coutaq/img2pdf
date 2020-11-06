@@ -5,7 +5,7 @@ from datetime import datetime
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import File, Bot, InputFile
 from collections import deque
-from io import BytesIO, BufferedReader, BufferedIOBase, BufferedWriter
+from io import BytesIO, BufferedReader, BufferedIOBase, BufferedWriter, StringIO, BufferedRandom, TextIOBase
 import sys
 import os
 import signal
@@ -13,7 +13,8 @@ import json
 
 logToConsole = lambda string: print(f'[{datetime.now().strftime("%H:%M:%S")}] {string}') 
 
-botToken = str(sys.argv[1])
+# botToken = str(sys.argv[1])
+botToken = "1255250122:AAF-5WUAjNJ2Y8hDh5uKuRktHMSzwP3Vcn0"
 updater = Updater(token=botToken, use_context=True)
 bot = Bot(token=botToken)
 logToConsole("Bot started.")  
@@ -113,7 +114,13 @@ dispatcher.add_handler(MessageHandler(Filters.photo & (~Filters.command), getPho
 dispatcher.add_handler(MessageHandler(Filters.document.category("image") & (~Filters.command), getFile))
 
 updater.start_polling()
-
+class BytePDF:
+    def __init__(self):
+        self.br = BufferedReader()
+    def write(self, content):
+       self.br = BufferedReader(raw = content)
+    def read(self):
+        return self.br.read()
 class PDF:
     def __init__(self, chat_id, user_id, lc, filename, author):
         self.chat_id = chat_id
@@ -137,7 +144,8 @@ class PDF:
 
     def createPFD(self):
         logToConsole(f"User @{self.user_id}(chat_id:{self.chat_id}) uploaded and combined the pictures into {self.filename}.")
-        canvas = Canvas(filename=self.filename)
+        self.byte = TextIO()
+        canvas = Canvas(filename=self.byte)
         canvas.setTitle(self.filename)
         canvas.setAuthor(self.author)
         for image in self.images:
@@ -153,24 +161,28 @@ class PDF:
             canvas.drawInlineImage(page, 0, 0, width=draw_width, height=draw_height)
             canvas.showPage()
         canvas.save()
+        bytesRead = BufferedReader(BytesIO())
+        print(bytesRead.read())
+        print("test")
 
     def uploadPDF(self):
         sent = False
         logToConsole(f"User @{self.user_id}(chat_id:{self.chat_id})'s pdf {self.filename} was succesfully created.")
         bot.send_message(chat_id=self.chat_id, text=getLocalized("sending", self.lc))
-        with open(self.filename, 'rb') as file:
-            for i in range(10):
-                try:
-                    bot.send_document(chat_id=self.chat_id, document=file)
-                    sent = True
-                    break
-                except Exception as e:
-                    logToConsole(f"User @{self.user_id}(chat_id:{self.chat_id})'s pdf {self.filename} was not uploaded({i}/10) because of an Exception({e.__class__}).")
-                else:
-                    logToConsole(f"User @{self.user_id}(chat_id:{self.chat_id}) got theirs pdf {self.filename}.")
+        print(self.byte.read())
+        # with open(self.filename, 'rb') as file:
+        for i in range(10):
+            # try:
+            bot.send_document(chat_id=self.chat_id, document=self.byte)
+            sent = True
+            break
+            # except Exception as e:
+            # logToConsole(f"User @{self.user_id}(chat_id:{self.chat_id})'s pdf {self.filename} was not uploaded({i}/10) because of an Exception({e.__class__}).")
+            # else:
+            logToConsole(f"User @{self.user_id}(chat_id:{self.chat_id}) got theirs pdf {self.filename}.")
         if not sent:
             bot.send_message(chat_id=self.chat_id, text=getLocalized("uploadingError", self.lc))
-        os.remove(self.filename)
+        # os.remove(self.filename)
         
     isEmpty = lambda self: len(self.images)==0
 
