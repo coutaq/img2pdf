@@ -13,7 +13,8 @@ import json
 
 logToConsole = lambda string: print(f'[{datetime.now().strftime("%H:%M:%S")}] {string}') 
 
-botToken = str(sys.argv[1])
+# botToken = str(sys.argv[1])
+botToken = "1255250122:AAF-5WUAjNJ2Y8hDh5uKuRktHMSzwP3Vcn0"
 updater = Updater(token=botToken, use_context=True)
 bot = Bot(token=botToken)
 logToConsole("Bot started.")  
