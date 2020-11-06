@@ -115,9 +115,7 @@ dispatcher.add_handler(MessageHandler(Filters.photo & (~Filters.command), getPho
 dispatcher.add_handler(MessageHandler(Filters.document.category("image") & (~Filters.command), getFile))
 
 updater.start_polling()
-class BytesPDF(BytesIO):
-    def read(self):
-        return self.getvalue()
+
 class PDF:
     def __init__(self, chat_id, user_id, lc, filename, author):
         self.chat_id = chat_id
@@ -127,7 +125,8 @@ class PDF:
             filename+=".pdf"
         self.images = deque()
         self.author = author
-        self.document = BytesPDF().name = filename
+        self.document = BytesIO()
+        self.document.name = filename
         logToConsole(f"User @{user_id}(chat_id:{chat_id}) created {filename}.")
 
     def setFilename(self, filename):
@@ -159,6 +158,7 @@ class PDF:
         canvas.save()
 
     def uploadPDF(self):
+        self.document.seek(0)
         sent = False
         logToConsole(f"User @{self.user_id}(chat_id:{self.chat_id})'s pdf {self.document.name} was succesfully created.")
         bot.send_message(chat_id=self.chat_id, text=getLocalized("sending", self.lc))

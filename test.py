@@ -13,6 +13,6 @@ with Image.open("img.jpg").convert("RGBA") as page:
         canvas.setPageSize((draw_width, draw_height))
     canvas.drawInlineImage(page, 0, 0, width=draw_width, height=draw_height)
 canvas.save()
-print(buf.getvalue())
-with open("file.pdf", "w") as file:
-    file.write(str(buf.getvalue()))
+buf.seek(0)
+with open("file.pdf", "wb") as file:
+    file.write(buf.read())
