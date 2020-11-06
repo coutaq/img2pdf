@@ -5,7 +5,7 @@ from datetime import datetime
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from telegram import File, Bot, InputFile
 from collections import deque
-from io import BytesIO, BufferedReader, BufferedIOBase, BufferedWriter, StringIO, BufferedRandom, TextIOBase
+from io import BytesIO
 import sys
 import os
 import signal
