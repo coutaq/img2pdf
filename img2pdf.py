@@ -121,6 +121,8 @@ class PDF:
         self.chat_id = chat_id
         self.user_id = user_id
         self.lc = lc
+        if(not filename):
+            filename = chat_id
         if(not filename.endswith(".pdf")):
             filename+=".pdf"
         self.images = deque()
