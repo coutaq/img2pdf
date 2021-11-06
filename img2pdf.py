@@ -37,7 +37,7 @@ def start(update, context):
     
 def help(update, context):
     """Sends the guide to the user."""
-    photo = open("howto.png", 'rb')
+    photo = open("howto.PNG", 'rb')
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo)
     photo.close()
 
